@@ -35,7 +35,7 @@ The project features both a **Command Line Interface (CLI)** and a **Full-Stack 
     cd frontend
     npm install
     ```
-*   **API Key**: Copy `.env.example` to a new file named `.env`. Open `.env` and replace `your_gemini_api_key_here` with your actual Google Gemini API key.
+*   **API Key**: Copy `.env.example` to a new file named `.env`. Open `.env` and replace `your_groq_api_key_here` with your actual Groq API key (get one from console.groq.com).
 
 ---
 
@@ -68,6 +68,6 @@ python agent.py --ticker "NSE: RELIANCE" --dir "./path/to/docs" --date "24 Septe
 ```
 
 ## Model Choice
-I designed the agent to use **Gemini 3.8 Flash / Gemini Flash Latest**.
-*   **Reasoning Capability:** The Flash model series excels at complex reasoning, instruction following, and anomaly detection required to bypass the traps in the documents.
-*   **Speed & Context:** The massive context window easily accommodates the entire research pack, while generating outputs at unparalleled speeds.
+I designed the agent to use **Groq (Llama 3 / Mixtral)**.
+*   **Reasoning Capability:** The Llama and Mixtral models excel at complex reasoning, instruction following, and anomaly detection required to bypass the traps in the documents.
+*   **Speed & Context:** Groq provides unparalleled inference speeds. The models have a large context window easily accommodating the entire research pack, while generating outputs instantly.

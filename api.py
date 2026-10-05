@@ -4,8 +4,7 @@ from typing import List
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from google import genai
-from google.genai import types
+from groq import Groq
 from dotenv import load_dotenv
 import time
 import logging
@@ -42,11 +41,11 @@ def read_documents(directory_path: str) -> str:
 @app.post("/generate")
 async def generate_brief(data: RequestData):
     load_dotenv()
-    api_key = os.environ.get("GEMINI_API_KEY")
-    if not api_key or api_key == "your_gemini_api_key_here":
-        raise HTTPException(status_code=500, detail="API Key not configured in .env")
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key or api_key == "your_groq_api_key_here":
+        raise HTTPException(status_code=500, detail="GROQ_API_KEY not configured in .env")
 
-    client = genai.Client(api_key=api_key)
+    client = Groq(api_key=api_key)
     
     try:
         with open('system_prompt.txt', 'r', encoding='utf-8') as f:
@@ -64,26 +63,29 @@ async def generate_brief(data: RequestData):
         f"Please generate the research brief based on the instructions."
     )
 
-    models_to_try = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-3.5-flash']
+    models_to_try = ['llama-3.3-70b-versatile', 'llama3-70b-8192', 'mixtral-8x7b-32768']
     
     for model_name in models_to_try:
         max_attempts = 2
         for attempt in range(max_attempts):
             try:
-                response = client.models.generate_content(
+                completion = client.chat.completions.create(
                     model=model_name,
-                    contents=user_prompt,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        temperature=0.2,
-                    ),
+                    messages=[
+                        {"role": "system", "content": system_instruction},
+                        {"role": "user", "content": user_prompt}
+                    ],
+                    temperature=0.2,
                 )
-                return {"result": response.text}
+                return {"result": completion.choices[0].message.content}
             except Exception as e:
-                if "503" in str(e) and attempt < max_attempts - 1:
-                    time.sleep(2)
+                if "429" in str(e) or "503" in str(e):
+                    if attempt < max_attempts - 1:
+                        time.sleep(2)
+                    else:
+                        break
                 else:
                     logger.error(f"{model_name} failed: {e}")
                     break
     
-    raise HTTPException(status_code=500, detail="Could not complete generation due to API constraints")
+    raise HTTPException(status_code=500, detail="Could not complete generation due to API constraints or Rate Limits")
