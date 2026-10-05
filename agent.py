@@ -69,7 +69,7 @@ def run_agent(ticker: str, doc_dir: str, current_date: str) -> None:
         f"Please generate the research brief based on the instructions."
     )
 
-    models_to_try = ['llama-3.3-70b-versatile', 'llama3-70b-8192', 'mixtral-8x7b-32768']
+    models_to_try = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b', 'qwen/qwen3.8-27b', 'allam-2-7b']
 
     logger.info(f"Running research agent for {ticker}...")
     
